@@ -2,6 +2,8 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="pragma" content="no-cache">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>MineKing</title>
 <link rel="manifest" href="/manifest.json">
@@ -253,18 +255,40 @@ let combo=0,comboTmr=null,lastOpen=0;
 let Dd=1,Dr,Dc,Dm,Db,Drev,Dfl,Dover,Ds,Dtick,Del=0;
 let taBoard,taRev,taFlags,taOver,taStarted,taTick,taTimeLeft,taOpened2;
 async function loadData(){
-  if(isGuest){const s=localStorage.getItem('mk_guest');if(s)try{const p=JSON.parse(s);Object.keys(p).forEach(k=>data[k]=p[k]);}catch(e){}ui();applySkin();restart();return;}
+  const localKey='mk_local_'+(currentUser?currentUser.uid:'guest');
+  // Load from localStorage first (instant)
+  try{const ls=localStorage.getItem(localKey);if(ls){const p=JSON.parse(ls);Object.keys(p).forEach(k=>data[k]=p[k]);}}catch(e){}
+  if(isGuest){ui();applySkin();restart();return;}
   if(!currentUser){ui();applySkin();restart();return;}
   setDot('syncing');
-  try{const doc=await db.collection('users').doc(currentUser.uid).get();if(doc.exists){const d2=doc.data();Object.keys(d2).forEach(k=>data[k]=d2[k]);}setDot('online');}
-  catch(e){setDot('offline');}
+  try{
+    const doc=await db.collection('users').doc(currentUser.uid).get();
+    if(doc.exists){
+      const d2=doc.data();
+      Object.keys(d2).forEach(k=>{data[k]=d2[k];});
+      // Sync Firestore version back to localStorage
+      localStorage.setItem(localKey,JSON.stringify(data));
+    }
+    setDot('online');
+  }catch(e){
+    console.error('Firestore load error:',e.code,e.message);
+    setDot('offline');
+  }
   ui();applySkin();restart();loadGlobalLb();
 }
 async function syncNow(){
-  if(isGuest){localStorage.setItem('mk_guest',JSON.stringify(data));return;}
-  if(!currentUser||!isOnline)return;
+  // Always save to localStorage as backup
+  try{localStorage.setItem('mk_local_'+( currentUser?currentUser.uid:'guest'), JSON.stringify(data));}catch(e){}
+  if(isGuest){return;}
+  if(!currentUser||!isOnline){setDot('offline');return;}
   setDot('syncing');
-  try{await db.collection('users').doc(currentUser.uid).set(data);setDot('online');}catch(e){setDot('offline');}
+  try{
+    await db.collection('users').doc(currentUser.uid).set(data,{merge:true});
+    setDot('online');
+  }catch(e){
+    console.error('Firestore write error:',e.code,e.message);
+    setDot('offline');
+  }
 }
 const save=()=>syncNow();
 async function loadGlobalLb(){
