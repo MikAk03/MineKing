@@ -433,14 +433,14 @@ function setDiff(i){if(i===3){document.getElementById('customModal').style.displ
 function applyCustom(){const r=parseInt(document.getElementById('cR').value),c=parseInt(document.getElementById('cC').value),m=Math.min(parseInt(document.getElementById('cM').value),r*c-9);DIFFS[3]={r,c,m,name:'Custom'};document.getElementById('customModal').style.display='none';d=3;document.querySelectorAll('.dbtn').forEach((b,i)=>b.classList.toggle('active',i===3));restart();}
 
 // ===================== THEME =====================
-var isDark=true;
-function toggleTheme(){isDark=!isDark;const r=document.documentElement;if(isDark){r.style.setProperty('--bg','#0a0a0f');r.style.setProperty('--bg2','#12121a');r.style.setProperty('--bg3','#1a1a26');r.style.setProperty('--bg4','#22223a');r.style.setProperty('--text','#f1f1f8');r.style.setProperty('--text2','#9898b8');r.style.setProperty('--text3','#44445a');document.getElementById('themebtn').innerHTML='&#x1F319;';}else{r.style.setProperty('--bg','#f0f0f8');r.style.setProperty('--bg2','#ffffff');r.style.setProperty('--bg3','#e8e8f4');r.style.setProperty('--bg4','#d8d8ec');r.style.setProperty('--text','#1a1a2e');r.style.setProperty('--text2','#444466');r.style.setProperty('--text3','#888899');document.getElementById('themebtn').innerHTML='&#x2600;';}data._theme=isDark?'dark':'light';save();}
+var _dk=true;
+function toggleTheme(){_dk=!_dk;const r=document.documentElement;if(_dk){r.style.setProperty('--bg','#0a0a0f');r.style.setProperty('--bg2','#12121a');r.style.setProperty('--bg3','#1a1a26');r.style.setProperty('--bg4','#22223a');r.style.setProperty('--text','#f1f1f8');r.style.setProperty('--text2','#9898b8');r.style.setProperty('--text3','#44445a');document.getElementById('themebtn').innerHTML='&#x1F319;';}else{r.style.setProperty('--bg','#f0f0f8');r.style.setProperty('--bg2','#ffffff');r.style.setProperty('--bg3','#e8e8f4');r.style.setProperty('--bg4','#d8d8ec');r.style.setProperty('--text','#1a1a2e');r.style.setProperty('--text2','#444466');r.style.setProperty('--text3','#888899');document.getElementById('themebtn').innerHTML='&#x2600;';}data._theme=_dk?'dark':'light';save();}
 
 
 
 firebase.initializeApp({apiKey:"AIzaSyBb0IOA6kqiDSYtJPSSqf1672GyqCuyYf0",authDomain:"mineking-18a46.firebaseapp.com",projectId:"mineking-18a46",storageBucket:"mineking-18a46.firebasestorage.app",messagingSenderId:"797042258857",appId:"1:797042258857:web:e503f4d97020eafaee8ab8"});
 const auth=firebase.auth(),db=firebase.firestore();
-let currentUser=null,isGuest=false,isOnline=navigator.onLine,isDark=true;
+let currentUser=null,isGuest=false,isOnline=navigator.onLine,_dk=true;
 window.addEventListener('online',()=>{isOnline=true;setDot('online');if(currentUser&&!isGuest)_doSave();});
 window.addEventListener('offline',()=>{isOnline=false;setDot('offline');});
 
@@ -479,7 +479,7 @@ function setDot(s){const el=document.getElementById('onlineDot');if(!el)return;e
 // -- Theme --
 // toggleTheme in BP section
   else{r.style.setProperty('--bg','#f0f0f8');r.style.setProperty('--bg2','#ffffff');r.style.setProperty('--bg3','#e8e8f4');r.style.setProperty('--bg4','#d8d8ec');r.style.setProperty('--text','#1a1a2e');r.style.setProperty('--text2','#444466');r.style.setProperty('--text3','#888899');document.querySelector('[onclick="toggleTheme()"]').textContent='&#x2600;';}
-  data._theme=isDark?'dark':'light';save();
+  data._theme=_dk?'dark':'light';save();
 }
 
 // -- Data & Persistence --
@@ -514,7 +514,7 @@ async function loadData(){
   }catch(e){}
   
   // Apply theme from saved data
-  if(data._theme==='light'&&isDark)toggleTheme();if(data._drClaimed!==dayStr())setTimeout(()=>showPop('&#x1F381;','Tagliche Belohnung!','Hol sie im Battle Pass Tab!'),2000);
+  if(data._theme==='light'&&_dk)toggleTheme();if(data._drClaimed!==dayStr())setTimeout(()=>showPop('&#x1F381;','Tagliche Belohnung!','Hol sie im Battle Pass Tab!'),2000);
   ui();applySkin();restart();
   
   if(isGuest||!currentUser)return;
@@ -763,7 +763,7 @@ function showApp(user){
   if(un)un.textContent=user?(user.displayName||user.email?.split('@')[0]||''):'Gast';
   setDot(isOnline?'online':'offline');
   loadData().then(()=>{
-    if(data._theme==='light'&&isDark)toggleTheme();
+    if(data._theme==='light'&&_dk)toggleTheme();
     // Show daily reward popup if not claimed today
     setTimeout(()=>{
       if(data._drClaimed!==dayStr()){
