@@ -750,21 +750,8 @@ function applyCustom(){
 
 // Patch showTab to include profile
 const _origShowTab=showTab;
-function showTab(t){
-  ['game','ta','daily','shop','ach','lb','stat','profile'].forEach(n=>{const el=document.getElementById('tab-'+n);if(el)el.style.display=n===t?'':'none';});
-  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['game','ta','daily','shop','ach','lb','stat','profile'][i]===t));
-  if(t==='shop')renderShop();if(t==='ach')renderAch();if(t==='lb'){renderLb();loadGlobalLb();}if(t==='daily')renderDaily();if(t==='stat')renderStat();if(t==='profile')renderProfile();
-}
 
-// Patch setDiff to show custom modal
-const _origSetDiff=setDiff;
-function setDiff(i){
-  if(i===3){document.getElementById('customModal').style.display='flex';return;}
-  d=i;document.querySelectorAll('.dbtn').forEach((b,j)=>b.classList.toggle('active',j===i));updBt();restart();
-}
 
-// Auto-check daily reward on login
-const _origShowApp=showApp;
 function showApp(user){
   document.getElementById('authScreen').style.display='none';
   document.getElementById('mainApp').style.display='block';
